@@ -41,7 +41,7 @@ void map_add(map_t *map, char *value, char *data)
     if (load_factor >= THRESH_BALANCE)
     {
         size_t max = 0, list_len = 0;
-        size_t min = map->size;
+        size_t min = SIZE_MAX;
         for (size_t i = 0; i < map->size; i++)
         {
             if (map->buckets[i] != NULL)
