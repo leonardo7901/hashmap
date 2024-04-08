@@ -12,9 +12,11 @@ map_t map_create(size_t size, size_t max_size)
 {
     map_t map = {NULL, size, 0, max_size};
     map.buckets = (node_t **)calloc(size, sizeof(node_t *));
+    MALLOC_CHECK(map.buckets, break);
     for (size_t i = 0; i < size; i++)
     {
         map.buckets[i] = (node_t *)calloc(1, sizeof(node_t));
+        MALLOC_CHECK(map.buckets[i], break);
     }
     return map;
 }
@@ -37,30 +39,10 @@ void map_add(map_t *map, char *value, char *data)
         free(element->data);
         element->data = strdup(data);
     }
-    double load_factor = (double)(map->nelem + 1) / map->max_size;
+    double load_factor = (double)((map->nelem + 1) / map->max_size);
     if (load_factor >= THRESH_BALANCE)
     {
-        size_t max = 0, list_len = 0;
-        size_t min = SIZE_MAX;
-        for (size_t i = 0; i < map->size; i++)
-        {
-            if (map->buckets[i] != NULL)
-            {
-                list_len = map->buckets[i]->length;
-                if (list_len > max)
-                {
-                    max = list_len;
-                }
-                if (list_len < min)
-                {
-                    min = list_len;
-                }
-            }
-        }
-        if (max - min > UNBALANCED_MIN_LIST)
-        {
-            map_resize(map);
-        }
+        map_resize(map);
     }
 }
 
@@ -100,6 +82,10 @@ char *map_find(map_t *map, char *value)
 
 void map_destroy(map_t *map)
 {
+    if (map == NULL)
+    {
+        return;
+    }
     for (size_t i = 0; i < map->size; i++)
     {
         if (map->buckets[i] != NULL)
@@ -129,6 +115,7 @@ size_t compute_key(char *string, size_t size)
 list_t *create_list(char *value, char *data)
 {
     list_t *list = (list_t *)malloc(sizeof(list_t));
+    MALLOC_CHECK(list, return NULL);
     list->value = strdup(value);
     list->data = strdup(data);
     list->next = NULL;
@@ -251,9 +238,11 @@ void map_resize(map_t *map)
 {
     size_t new_size = map->size * 2;
     node_t **new_buckets = (node_t **)calloc(new_size, sizeof(node_t *));
+    MALLOC_CHECK(new_buckets, return);
     for (size_t i = 0; i < new_size; i++)
     {
         new_buckets[i] = (node_t *)calloc(1, sizeof(node_t));
+        MALLOC_CHECK(new_buckets[i], return);
     }
     for (size_t i = 0; i < map->size; i++)
     {

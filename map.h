@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define THRESH_BALANCE 0.85
-#define UNBALANCED_MIN_LIST 128
-#define MAP_SIZE 256
-#define MAP_SIZE_BUCKET 12
+// consider K factor as O(16) in best case as full balanced, rehash only when map is full, so thresh is 1
+#define THRESH_BALANCE 1
+#define MAP_SIZE 4096
+#define MAP_SIZE_BUCKET 256
 #define MOVE_SEMANTIC 0
 #define COPY_SEMANTIC 1
 
@@ -63,5 +63,15 @@ void delete_list(list_t **list_head, list_t **list_tail, list_t *sentinel);
 void map_delete(map_t *map, char *value);
 list_t *list_search(list_t *head, list_t *tail, char *value);
 void list_free(list_t **list_head);
+
+#define MALLOC_CHECK(ptr, call_free)                \
+    do                                              \
+    {                                               \
+        if ((ptr) == NULL)                          \
+        {                                           \
+            perror("memory error, destroying map"); \
+            call_free;                              \
+        }                                           \
+    } while (0)
 
 #endif
