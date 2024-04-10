@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 #include <chrono>
 #include "map.h" // Assicurati che questo includa la tua definizione di hashmap in C
 
@@ -27,33 +28,38 @@ int main()
     // Genera un set di coppie chiave-valore casuali
     std::unordered_map<std::string, std::string> cpp_map;
     map_t c_map = map_create_default();
+    std::vector<std::string> arr;
+
+    for (int i = 0; i < numKeys; i++)
+    {
+        std::string key = generate_random_string(16);
+        arr.push_back(key);
+    }
 
     auto start_cpp = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < numKeys; ++i)
+    for (std::string &str : arr)
     {
-        std::string key = generate_random_string(8);
-        std::string value = generate_random_string(16);
-        cpp_map[key] = value;
+        cpp_map[str] = str;
     }
     auto end_cpp = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> cpp_duration = end_cpp - start_cpp;
     std::cout << "Tempo impiegato per la mappa C++ in inserimento: " << cpp_duration.count() << " secondi" << std::endl;
 
     auto start_c = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < numKeys; ++i)
+    char *c_str;
+    for (std::string &str : arr)
     {
-        std::string key = generate_random_string(8);
-        std::string value = generate_random_string(16);
-        map_add(&c_map, const_cast<char *>(key.c_str()), const_cast<char *>(value.c_str()));
+        c_str = (char *)str.c_str();
+        map_add(&c_map, c_str, c_str);
     }
     auto end_c = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> c_duration = end_c - start_c;
     std::cout << "Tempo impiegato per la mappa C in inserimento: " << c_duration.count() << " secondi" << std::endl;
 
     // Misura il tempo di iterazione e ricerca per la mappa C
-    start_c = std::chrono::high_resolution_clock::now();
     map_status_t iter_status = init_iterator();
     obj_t *c_element;
+    start_c = std::chrono::high_resolution_clock::now();
     while ((c_element = map_iterate(&c_map, &iter_status)) != NULL)
     {
         // Esegui operazioni con gli elementi della mappa C
