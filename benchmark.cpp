@@ -18,10 +18,10 @@ std::string generate_random_string(int length) {
     return str;
 }
 
-int main() {
-    int numKeys;
-    std::cout << "Inserisci il numero di chiavi da generare: ";
-    std::cin >> numKeys;
+int main(int argc, char* argv[]) {
+    //int numKeys = 0;
+    //std::cin >> numKeys;
+    int numKeys = std::atoi(argv[1]);
 
     // Genera un set di coppie chiave-valore casuali
     std::unordered_map<std::string, std::string> cpp_map;
@@ -37,7 +37,8 @@ int main() {
     // Misura il tempo di iterazione e ricerca per la mappa C
     auto start_c = std::chrono::high_resolution_clock::now();
     map_status_t iter_status = init_iterator();
-    list_t* c_element;
+    obj_t c_element;
+
     while ((c_element = map_iterate(&c_map, &iter_status)) != NULL) {
         // Esegui operazioni con gli elementi della mappa C
     }
@@ -53,8 +54,9 @@ int main() {
     std::chrono::duration<double> cpp_duration = end_cpp - start_cpp;
 
     // Stampa i tempi misurati
-    std::cout << "Tempo impiegato per la mappa C: " << c_duration.count() << " secondi" << std::endl;
-    std::cout << "Tempo impiegato per la mappa C++: " << cpp_duration.count() << " secondi" << std::endl;
+    std::cout << numKeys << ',' << c_duration.count() << ',' << cpp_duration.count() << std::endl;
+    //std::cout << "\nTempo impiegato per la mappa C: " << c_duration.count() << " secondi" << std::endl;
+    //std::cout << "Tempo impiegato per la mappa C++: " << cpp_duration.count() << " secondi" << std::endl;
 
     // Dealloca le risorse
     map_destroy(&c_map);
