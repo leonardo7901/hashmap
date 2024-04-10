@@ -17,12 +17,27 @@ map_t map_create(size_t size, size_t max_size) {
         MALLOC_CHECK(map.buckets[i], break);
         map.buckets[i]->entries = (dynamic_array_t *)malloc(sizeof(dynamic_array_t));
         MALLOC_CHECK(map.buckets[i]->entries, break);
-        map.buckets[i]->entries->data = NULL;
+        map.buckets[i]->entries->data = (void **)malloc(32 * sizeof(void *));
+        MALLOC_CHECK(map.buckets[i]->entries->data, break);
         map.buckets[i]->entries->size = 0;
-        map.buckets[i]->entries->capacity = 0;
+        map.buckets[i]->entries->capacity = 32;
     }
     return map;
 }
+
+void array_insert(dynamic_array_t *array, void *key, void *value) {
+    if (array->size == array->capacity) {
+        // Se l'array è pieno, rialloca raddoppiando la capacità
+        array->capacity = array->capacity ? array->capacity * 2 : 2;
+        array->data = (void **)realloc(array->data, array->capacity * sizeof(void *));
+        MALLOC_CHECK(array->data, return);
+    }
+    
+    // Inserisci la chiave e il valore nell'array
+    array->data[array->size++] = key;
+    array->data[array->size++] = value;
+}
+
 
 void map_add(map_t *map, char *value, char *data) {
     size_t idx = compute_key(value, map->size) % map->size;
@@ -34,20 +49,19 @@ void map_add(map_t *map, char *value, char *data) {
     for (i = 0; i < entries->size; i += 2) {
         if (strcmp((char *)entries->data[i], value) == 0) {
             // Chiave trovata, aggiorna il valore e restituisci
-            free(entries->data[i + 1]);  // Libera il vecchio valore
-            entries->data[i + 1] = strdup(data);  // Aggiorna con il nuovo valore
+            free(entries->data[i + 1]); // Libera il vecchio valore
+            entries->data[i + 1] = strdup(data); // Aggiorna con il nuovo valore
             return;
         }
     }
 
-// Se la chiave non è stata trovata, aggiungila al vettore dinamico
+    // Se la chiave non è stata trovata, aggiungila al vettore dinamico
     char *key_copy = strdup(value);
     char *data_copy = strdup(data);
-    entries->data = (void **)realloc(entries->data, (entries->size + 2) * sizeof(void *));
-    MALLOC_CHECK(entries->data, return);
-    entries->data[entries->size] = key_copy;
-    entries->data[entries->size + 1] = data_copy;
-    entries->size += 2;
+    
+    // Inserisci la coppia chiave-valore nell'array dinamico
+    array_insert(entries, key_copy, data_copy);
+    
     node->length++;
 
     double load_factor = (double)(map->nelem + 1) / map->max_size;
@@ -276,8 +290,7 @@ void map_resize(map_t *map) {
             dynamic_array_t *new_entries = new_buckets[idx]->entries;
             new_entries->data = (void **)realloc(new_entries->data, (new_entries->size + 2) * sizeof(void *));
             MALLOC_CHECK(new_entries->data, return);
-            new_entries->data[new_entries->size] = strdup(key);
-            new_entries->data[new_entries->size + 1] = strdup(value);
+            memmove(new_entries->data + new_entries->size, entries->data + j, 2 * sizeof(void *));
             new_entries->size += 2;
             new_buckets[idx]->length++;
         }
