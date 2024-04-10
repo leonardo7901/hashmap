@@ -57,21 +57,19 @@ int main()
     std::cout << "Tempo impiegato per la mappa C in inserimento: " << c_duration.count() << " secondi" << std::endl;
 
     // Misura il tempo di iterazione e ricerca per la mappa C
-    map_status_t iter_status = init_iterator();
-    obj_t *c_element;
     start_c = std::chrono::high_resolution_clock::now();
-    while ((c_element = map_iterate(&c_map, &iter_status)) != NULL)
+    for (std::string &str : arr)
     {
-        // Esegui operazioni con gli elementi della mappa C
+        map_find(&c_map, (char *)str.c_str());
     }
     end_c = std::chrono::high_resolution_clock::now();
     c_duration = end_c - start_c;
 
     // Misura il tempo di iterazione e ricerca per la mappa C++
     start_cpp = std::chrono::high_resolution_clock::now();
-    for (auto &pair : cpp_map)
+    for (std::string &str : arr)
     {
-        // Esegui operazioni con gli elementi della mappa C++
+        cpp_map.find(str);
     }
     end_cpp = std::chrono::high_resolution_clock::now();
     cpp_duration = end_cpp - start_cpp;
