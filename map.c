@@ -109,7 +109,7 @@ size_t compute_key(char *string, size_t size)
     hashval += (hashval << 3);
     hashval ^= (hashval >> 11);
     hashval += (hashval << 15);
-    return hashval |= size;
+    return hashval ^ size;
 }
 
 list_t *create_list(char *value, char *data)
@@ -249,12 +249,14 @@ void map_resize(map_t *map)
         node_t *current = map->buckets[i];
         list_t *head = current->head;
         list_t *next = NULL;
+        list_t *save_next = NULL;
         while (head != NULL)
         {
+            save_next = head->next;
             size_t idx = compute_key(head->value, new_size) % new_size;
             list_add(&new_buckets[idx]->head, &new_buckets[idx]->tail, NULL, NULL, MOVE_SEMANTIC, head);
             new_buckets[idx]->length++;
-            head = head->next;
+            head = save_next;
         }
         free(map->buckets[i]);
     }
