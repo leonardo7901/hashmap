@@ -25,7 +25,7 @@ void map_add(map_t *map, char *value, char *data)
 {
     size_t idx = compute_key(value, map->size) % map->size;
     vector_t *bucket = &map->buckets[idx];
-    short state = vector_insert(bucket, value, data);
+    short state = vector_ordered_insert(bucket, value, data);
     if (state == NEW)
     {
         map->nelem++;
@@ -41,7 +41,7 @@ void map_delete(map_t *map, char *value)
 {
     size_t idx = compute_key(value, map->size) % map->size;
     vector_t *bucket = &map->buckets[idx];
-    if (vector_delete(bucket, value))
+    if (vector_ordered_delete(bucket, value))
     {
         map->nelem--;
     }
@@ -52,14 +52,14 @@ char *map_find(map_t *map, char *value)
 {
     size_t idx = compute_key(value, map->size) % map->size;
     vector_t *bucket = &map->buckets[idx];
-    node_t *element = vector_search(bucket, value);
-    if (element == NULL)
+    search_t position = binary_search(bucket->raw, 0, bucket->actual_size, value);
+    if (position.found)
     {
-        return NULL;
+        return bucket->raw[position.idx].data;
     }
     else
     {
-        return element->data;
+        return NULL;
     }
 }
 
@@ -111,7 +111,7 @@ void map_resize(map_t *map)
             if (data != NULL)
             {
                 size_t idx = compute_key(data->key, new_size) % new_size;
-                vector_insert_when_rehash(&new_buckets[idx], data);
+                vector_ordered_insert(&new_buckets[idx], data->key, data->data);
             }
             else
             {

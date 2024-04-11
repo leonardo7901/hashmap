@@ -8,11 +8,17 @@ int main(void)
     map_t map = map_create(MAP_SIZE_BUCKET, MAP_SIZE);
     map_add(&map, "A", "1");
     map_add(&map, "A", "1");
+    char *f = map_find(&map, "A");
+    printf("%s\n", f);
     map_add(&map, "A", "1");
     map_add(&map, "A", "1");
     map_add(&map, "A", "1");
     map_add(&map, "A", "2");
+    f = map_find(&map, "A");
+    printf("%s\n", f);
     map_add(&map, "Ax", "2");
+    map_find(&map, "A");
+    printf("%s\n", f);
     map_add(&map, "A", "1");
     map_add(&map, "Af", "1");
     map_add(&map, "B", "4");

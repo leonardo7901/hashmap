@@ -92,6 +92,39 @@ int main()
     }
     std::cout << " OK" << std::endl;
 
+    int i = numKeys / 2;
+    for (std::string &str : arr)
+    {
+        if (--i <= 0)
+        {
+            break;
+        }
+        map_delete(&c_map, (char *)str.c_str());
+    }
+    i = numKeys / 2;
+    for (std::string &str : arr)
+    {
+        if (--i <= 0)
+        {
+            break;
+        }
+        cpp_map.erase(str);
+    }
+
+    std::cout << "Verifying correctness after some delete";
+    for (auto &str : arr)
+    {
+        std::string s = cpp_map[str];
+        std::string x = std::string(map_find(&c_map, (char *)str.c_str()));
+        if (s != x)
+        {
+            std::cout << " NOT OK" << std::endl;
+            map_destroy(&c_map);
+            return 1;
+        }
+    }
+    std::cout << " OK" << std::endl;
+
     // Misura il tempo di iterazione e ricerca per la mappa C
     start_c = std::chrono::high_resolution_clock::now();
     for (std::string &str : arr)
