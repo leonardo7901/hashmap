@@ -115,8 +115,8 @@ short vector_ordered_delete(vector_t *v, char *key)
     search_t position = binary_search(v->raw, 0, v->actual_size - 1, key);
     if (position.found)
     {
-        memmove(&v->raw[position.idx], &v->raw[position.idx + 1], (v->actual_size - position.idx - 1) * sizeof(node_t));
         v->actual_size--;
+        memmove(&v->raw[position.idx], &v->raw[position.idx + 1], (v->actual_size - position.idx) * sizeof(node_t));
         return 0;
     }
     else

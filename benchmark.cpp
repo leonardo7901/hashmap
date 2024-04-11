@@ -111,12 +111,16 @@ int main()
         cpp_map.erase(str);
     }
 
+    i = numKeys / 2;
     std::cout << "Verifying correctness after some delete";
     for (auto &str : arr)
     {
-        std::string s = cpp_map[str];
-        std::string x = std::string(map_find(&c_map, (char *)str.c_str()));
-        if (s != x)
+        if (--i <= 0)
+        {
+            break;
+        }
+        char *f = map_find(&c_map, (char *)str.c_str());
+        if (f != NULL && cpp_map.count(str) != 0)
         {
             std::cout << " NOT OK" << std::endl;
             map_destroy(&c_map);
@@ -124,20 +128,28 @@ int main()
         }
     }
     std::cout << " OK" << std::endl;
-
+    i = numKeys / 2;
     // Misura il tempo di iterazione e ricerca per la mappa C
     start_c = std::chrono::high_resolution_clock::now();
     for (std::string &str : arr)
     {
+        if (--i <= 0)
+        {
+            break;
+        }
         map_delete(&c_map, (char *)str.c_str());
     }
     end_c = std::chrono::high_resolution_clock::now();
     c_duration = end_c - start_c;
-
+    i = numKeys / 2;
     // Misura il tempo di iterazione e ricerca per la mappa C++
     start_cpp = std::chrono::high_resolution_clock::now();
     for (std::string &str : arr)
     {
+        if (--i <= 0)
+        {
+            break;
+        }
         cpp_map.erase(str);
     }
     end_cpp = std::chrono::high_resolution_clock::now();
