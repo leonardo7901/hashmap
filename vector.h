@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/types.h>
 #define NEW 0
 #define PRESENT 1
 #define BOGUS 2
@@ -24,7 +25,7 @@ typedef struct vector
 
 typedef struct v_iterator
 {
-    size_t last_idx;
+    ssize_t last_idx;
 } v_iterator_t;
 
 typedef struct search
