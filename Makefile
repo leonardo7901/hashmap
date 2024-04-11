@@ -5,8 +5,8 @@ else
     CFLAGS = -Ofast
 endif
 CC = cc
-TARGET = list
-OBJ = main.o map.o
+TARGET = main
+OBJ = main.o map.o vector.o
 .PHONY = clean re
 
 $(TARGET): $(OBJ)

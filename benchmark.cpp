@@ -32,7 +32,7 @@ int main()
 
     for (int i = 0; i < numKeys; i++)
     {
-        std::string key = generate_random_string(16);
+        std::string key = generate_random_string(8);
         arr.push_back(key);
     }
 
@@ -77,6 +77,40 @@ int main()
     // Stampa i tempi misurati
     std::cout << "Tempo impiegato per la mappa C in ricerca: " << c_duration.count() << " secondi" << std::endl;
     std::cout << "Tempo impiegato per la mappa C++ in ricerca: " << cpp_duration.count() << " secondi" << std::endl;
+
+    std::cout << "Verifying correctness ";
+    for (auto &str : arr)
+    {
+        std::string s = cpp_map[str];
+        std::string x = std::string(map_find(&c_map, (char *)str.c_str()));
+        if (s != x)
+        {
+            std::cout << " NOT OK" << std::endl;
+            map_destroy(&c_map);
+            return 1;
+        }
+    }
+    std::cout << " OK" << std::endl;
+
+    // Misura il tempo di iterazione e ricerca per la mappa C
+    start_c = std::chrono::high_resolution_clock::now();
+    for (std::string &str : arr)
+    {
+        map_delete(&c_map, (char *)str.c_str());
+    }
+    end_c = std::chrono::high_resolution_clock::now();
+    c_duration = end_c - start_c;
+
+    // Misura il tempo di iterazione e ricerca per la mappa C++
+    start_cpp = std::chrono::high_resolution_clock::now();
+    for (std::string &str : arr)
+    {
+        cpp_map.erase(str);
+    }
+    end_cpp = std::chrono::high_resolution_clock::now();
+    cpp_duration = end_cpp - start_cpp;
+    std::cout << "Tempo impiegato per la mappa C in delete: " << c_duration.count() << " secondi" << std::endl;
+    std::cout << "Tempo impiegato per la mappa C++ in delete: " << cpp_duration.count() << " secondi" << std::endl;
 
     // Dealloca le risorse
     map_destroy(&c_map);
